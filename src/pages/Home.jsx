@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import axios from "axios";
 import { Header } from "../components/Header";
 import { url } from "../const";
-import "./home.css";
+import "./home.scss";
 
 
 export const Home = () => {
@@ -39,7 +39,8 @@ export const Home = () => {
         }
       })
       .then((res) => {
-        setTasks(res.data.tasks)
+        console.log(res.data.tasks[0]);
+        setTasks(res.data.tasks);
       })
       .catch((err) => {
         setErrorMessage(`タスクの取得に失敗しました。${err}`);
@@ -139,6 +140,7 @@ const Tasks = (props) => {
         <li key={key} className="task-item">
           <Link to={`/lists/${selectListId}/tasks/${task.id}`} className="task-item-link">
             {task.title}<br />
+            期限日時:{task.limit}<br />
             {task.done ? "完了" : "未完了"}
           </Link>
         </li>

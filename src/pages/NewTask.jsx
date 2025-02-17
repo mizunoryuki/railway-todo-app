@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useCookies } from "react-cookie";
 import axios from "axios";
 import { url } from "../const";
 import { Header } from "../components/Header";
-import "./newTask.css"
+import "./newTask.scss"
 import { useNavigate } from "react-router-dom";
 
 export const NewTask = () => {
@@ -12,16 +12,21 @@ export const NewTask = () => {
   const [title, setTitle] = useState("");
   const [detail, setDetail] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [subtime, setSubtime] = useState("");//残り時刻
+  const [deadline, setDeadline] = useState("");//タスクの期限設定
   const [cookies] = useCookies();
   const navigate = useNavigate();
   const handleTitleChange = (e) => setTitle(e.target.value);
   const handleDetailChange = (e) => setDetail(e.target.value);
   const handleSelectList = (id) => setSelectListId(id);
+  const handleDateChange = (e) => setDeadline(e.target.value);  //選択した日付を変更
+
   const onCreateTask = () => {
     const data = {
       title: title,
       detail: detail,
       done: false,
+      limit: `${deadline}Z`,
     };
 
     axios.post(`${url}/lists/${selectListId}/tasks`, data, {
@@ -52,6 +57,30 @@ export const NewTask = () => {
     })
   }, [])
 
+  useEffect(() => {
+    const now = new Date();//現在時刻を取得
+
+    const formattedDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    setDeadline(formattedDate.toISOString().slice(0, 19));//〆切に設定
+  },[])
+
+    //現在時刻から指定日時までの残り時間を計算
+  useEffect(() => {
+    const deadlineDate = new Date(deadline);//締め切り
+    const now = new Date();//現在時刻
+    const diff = deadlineDate - now;//差分
+
+    if(diff >0) {
+      const day = Math.floor((diff/(1000*60*60*24)));
+      const hours = Math.floor(diff % ((1000*60*60*24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setSubtime(`${day}日 ${hours}時間 ${minutes}分 ${seconds}秒`);
+    }else {
+      setSubtime("その日時は設定できません");
+    }
+  },[deadline])
+
   return (
     <div>
       <Header />
@@ -67,6 +96,13 @@ export const NewTask = () => {
           </select><br />
           <label>タイトル</label><br />
           <input type="text" onChange={handleTitleChange} className="new-task-title" /><br />
+          <label>期限(UTC)</label><br />
+          <input style={{width:"200px"}} onChange={handleDateChange}
+            type="datetime-local"
+            value={deadline} /><br />
+          <p>{deadline}</p><br />
+          <label>残り期限</label><br />
+          <p>{subtime}</p><br />
           <label>詳細</label><br />
           <textarea type="text" onChange={handleDetailChange} className="new-task-detail" /><br />
           <button type="button" className="new-task-button" onClick={onCreateTask}>作成</button>

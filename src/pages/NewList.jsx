@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useCookies } from "react-cookie";
 import axios from "axios";
 import { Header } from "../components/Header";
 import {useNavigate } from "react-router-dom";
 import { url } from "../const";
-import "./newList.css";
+import "./newList.scss";
 
 export const NewList = () => {
   const [cookies] = useCookies();
