@@ -51,6 +51,7 @@ export const Home = () => {
     }, [lists, cookies.token]);
 
     useEffect(() => {
+        //2秒ごとに現在時刻を更新し残り時間を減少させる
         const interval = setInterval(() => {
             setNowTime(new Date());
         }, 2000);
@@ -74,7 +75,7 @@ export const Home = () => {
             });
     };
     return (
-        <div>
+        <div className="screen">
             <Header />
             <main className="taskList">
                 <p className="error-message">{errorMessage}</p>
